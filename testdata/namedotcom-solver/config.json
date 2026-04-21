@@ -1,0 +1,11 @@
+{
+  "apiURLBase": "https://api.dev.name.com",
+  "usernameSecretRef": {
+    "name": "namedotcom-dev-credentials",
+    "key": "username"
+  },
+  "apiTokenSecretRef": {
+    "name": "namedotcom-dev-credentials",
+    "key": "api-token"
+  }
+}

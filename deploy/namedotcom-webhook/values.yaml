@@ -1,0 +1,27 @@
+groupName: webhook.namedotcom.cert-manager.irwin.earth
+
+image:
+  repository: ghcr.io/albinoanteater/cert-manager-webhook-namedotcom
+  tag: ""
+  pullPolicy: IfNotPresent
+
+certManager:
+  namespace: cert-manager
+  serviceAccountName: cert-manager
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 443
+
+resources:
+  limits:
+    memory: 64Mi
+  requests:
+    cpu: 10m
+    memory: 32Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

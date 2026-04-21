@@ -1,0 +1,58 @@
+---
+# Self-signed issuer to bootstrap the CA
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "namedotcom-webhook.selfSignedIssuer" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "namedotcom-webhook.name" . }}
+spec:
+  selfSigned: {}
+---
+# Root CA certificate (5 year validity)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "namedotcom-webhook.rootCACertificate" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "namedotcom-webhook.name" . }}
+spec:
+  secretName: {{ include "namedotcom-webhook.rootCACertificate" . }}
+  duration: 43800h # 5y
+  issuerRef:
+    name: {{ include "namedotcom-webhook.selfSignedIssuer" . }}
+  commonName: "ca.namedotcom-webhook.cert-manager"
+  isCA: true
+---
+# CA issuer using the root cert
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "namedotcom-webhook.rootCAIssuer" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "namedotcom-webhook.name" . }}
+spec:
+  ca:
+    secretName: {{ include "namedotcom-webhook.rootCACertificate" . }}
+---
+# Serving certificate for the webhook (1 year validity)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "namedotcom-webhook.servingCertificate" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "namedotcom-webhook.name" . }}
+spec:
+  secretName: {{ include "namedotcom-webhook.servingCertificate" . }}
+  duration: 8760h # 1y
+  issuerRef:
+    name: {{ include "namedotcom-webhook.rootCAIssuer" . }}
+  dnsNames:
+    - {{ include "namedotcom-webhook.fullname" . }}
+    - {{ include "namedotcom-webhook.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "namedotcom-webhook.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "namedotcom-webhook.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
